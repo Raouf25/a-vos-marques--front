@@ -19,7 +19,7 @@
                           label="Select"
                           hide-details
                           prepend-icon="map"
-                          v-on:input="changeRoute(`${e1}`)"
+                          v-on:input="changeTown(`${e1}`)"
                           single-line
                 ></v-select>
               </v-col>
@@ -37,7 +37,8 @@
 </template>
 
 <script>
-    import L from 'leaflet';
+  import L from 'leaflet';
+  import api from '../Api';
   export default {
     data: () => {
       return {
@@ -68,8 +69,13 @@
     },
 
     methods: {
+
       getAllTowns(){
-        console.log("look for town list from rest Api");
+        api.getAllTowns()
+                .then(response => {
+                  this.region = response.data;
+                  this.states = response.data.map(r => r.valueOf().town);
+                });
       },
 
       initMap() {
@@ -84,15 +90,45 @@
         this.tileLayer.addTo(this.map);
       },
 
-      changeRoute(a) {
-        console.log(a);
-        console.log("look for stadiums in city postal code a  from rest Api");
+      changeTown(a) {
+        const newTown = this.region.filter(r => r.valueOf().town == a);
+        var arrayOfLatLngs0 = [];
+        var arrayOfLatLngs = [];
+        api.getAllStadiums(newTown[0].code)
+                .then(response => {
+                  response.data
+                          .filter(e => (e.latitude != null && e.longitude != null))
+                          .forEach(e => {
+                            arrayOfLatLngs0.push([e.latitude, e.longitude]);
+                            arrayOfLatLngs.push(L.marker([e.latitude, e.longitude]).bindPopup(e.name));
+                          });
+
+                  var bounds = new L.LatLngBounds(arrayOfLatLngs0);
+                  this.map.fitBounds(bounds);
+
+                  if (this.layerGroup != null) {
+                    this.map.removeLayer(this.layerGroup);
+                  }
+
+                  // Creating layer group
+                  this.layerGroup = L.layerGroup(arrayOfLatLngs);
+                  this.layerGroup.addTo(this.map);    // Adding layer group to map
+
+                });
         this.getEvent(a);
       },
 
       getEvent(a) {
-        console.log("look for events in city postal code a  from rest Api");
-        console.log(a);
+        const newTown = this.region.filter(r => r.valueOf().town == a);
+        api.getEventPerTown(newTown[0].code.valueOf())
+                .then(response => {
+                  this.items = response.data
+                          .map((e, idx) => ({
+                            idEvent: idx + 1,
+                            titleEvent: e.title,
+                            dateEvent: e.dateDeDebut,
+                          }));
+                });
       },
 
     },
