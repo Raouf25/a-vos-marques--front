@@ -1,27 +1,9 @@
 <template>
-    <v-app>
-        <div id="header">
-        </div>
-        <v-content>
-            <div id="main">
-                <EventListPage/>
-            </div>
-        </v-content>
-        <div id="footer">
-        </div>
+    <v-app id="app">
+      <div id="nav">
+          <a href="#" @click.prevent="$router.push({name:'home'})">Home</a>  |
+          <a href="#" @click.prevent="$router.push({name:'about'})">About</a>
+      </div>
+      <router-view/>
     </v-app>
 </template>
-
-<script>
-    import EventListPage from './components/EventListPage';
-
-    export default {
-        name: 'App',
-        components: {
-            EventListPage,
-        },
-        data: () => ({
-            //
-        }),
-    };
-</script>
