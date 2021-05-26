@@ -12,7 +12,7 @@
     "leaflet": "^1.6.0",
     "vue": "^2.6.11",
     "vue-router": "^3.5.1",
-    "vuetify": "^2.3.2"
+    "vuetify": "^2.5.1"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
